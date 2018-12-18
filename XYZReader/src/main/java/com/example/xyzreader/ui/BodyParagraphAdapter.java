@@ -38,18 +38,18 @@ public class BodyParagraphAdapter extends RecyclerView.Adapter<BodyParagraphAdap
 
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutForItem, parent, false);
+        BodyParagraphAdapterViewHolder vh = new BodyParagraphAdapterViewHolder(view);
+        vh.mBodyParagraphTextView.setTypeface(
+                Typeface.createFromAsset(
+                        mContext.getResources().getAssets(), "Rosario-Regular.ttf"));
 
-        return new BodyParagraphAdapterViewHolder(view);
+        return vh;
     }
 
     @Override
     public void onBindViewHolder(BodyParagraphAdapterViewHolder holder, int position) {
         String bodyParagraphText = mParagraphData.get(position);
         holder.mBodyParagraphTextView.setText(bodyParagraphText);
-        holder.mBodyParagraphTextView.setTypeface(
-                Typeface.createFromAsset(
-                        mContext.getResources().getAssets(), "Rosario-Regular.ttf"));
-
     }
 
     @Override
