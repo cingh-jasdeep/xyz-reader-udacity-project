@@ -22,12 +22,16 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
 import com.example.xyzreader.R;
 
+// https://gist.github.com/romannurik/8919163
+//DrawInsetsFrameLayout — adding additional background protection for system UI chrome
+// when using KitKat’s translucent decor flags.
 
 public class DrawInsetsFrameLayout extends FrameLayout {
     private Drawable mInsetBackground;
@@ -78,7 +82,7 @@ public class DrawInsetsFrameLayout extends FrameLayout {
     }
 
     @Override
-    protected void onAttachedToWindow() {
+    public void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             requestApplyInsets();
@@ -89,7 +93,7 @@ public class DrawInsetsFrameLayout extends FrameLayout {
     }
 
     @Override
-    protected void onDetachedFromWindow() {
+    public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (mInsetBackground != null) {
             mInsetBackground.setCallback(null);
@@ -103,11 +107,13 @@ public class DrawInsetsFrameLayout extends FrameLayout {
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         insets = super.onApplyWindowInsets(insets);
-        mInsets = new Rect(
-                insets.getSystemWindowInsetLeft(),
-                insets.getSystemWindowInsetTop(),
-                insets.getSystemWindowInsetRight(),
-                insets.getSystemWindowInsetBottom());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            mInsets = new Rect(
+                    insets.getSystemWindowInsetLeft(),
+                    insets.getSystemWindowInsetTop(),
+                    insets.getSystemWindowInsetRight(),
+                    insets.getSystemWindowInsetBottom());
+        }
         setWillNotDraw(false);
         postInvalidateOnAnimation();
         if (mOnInsetsCallback != null) {
