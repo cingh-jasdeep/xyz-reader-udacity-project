@@ -60,12 +60,11 @@
         app:behavior_overlapTop="@dimen/detail_card_overlap_top">
 
             <!--article view-->
-            <com.example.xyzreader.ui.MaxWidthLinearLayout
+            <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="match_parent"
+                style="@style/detail_article_width"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:maxWidth="@dimen/detail_card_max_width"
                 android:background="#fff"
                 android:elevation="2dp">
 
@@ -112,7 +111,7 @@
                     android:nestedScrollingEnabled="false"
                     android:clipToPadding="false" />
 
-            </com.example.xyzreader.ui.MaxWidthLinearLayout>
+            </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
 

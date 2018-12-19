@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="detail_article_width">
+        <item name="android:layout_width">@dimen/detail_article_max_width</item>
+    </style>
+
+</resources>
