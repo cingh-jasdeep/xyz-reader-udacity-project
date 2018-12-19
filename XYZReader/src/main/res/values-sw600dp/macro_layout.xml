@@ -1,4 +1,8 @@
 <resources>
+    <!--list-->
+    <dimen name="list_side_margin">24dp</dimen>
+    <dimen name="list_gutter">16dp</dimen>
+
 
     <!-- detail -->
     <dimen name="detail_photo_height">384dp</dimen>

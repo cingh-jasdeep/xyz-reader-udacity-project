@@ -2,6 +2,7 @@
     <!--list-->
     <dimen name="list_toolbar_logo_margin_bottom">8dp</dimen>
     <dimen name="list_app_bar_height">112dp</dimen>
+    <dimen name="list_bottom_padding">28dp</dimen>
 
 
     <!-- detail -->
