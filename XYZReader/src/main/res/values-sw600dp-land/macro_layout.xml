@@ -2,7 +2,7 @@
     <!-- detail -->
     <bool name="detail_is_card">true</bool>
 
-    <dimen name="detail_photo_height">600dp</dimen>
-    <!--600 - 256-->
-    <dimen name="detail_card_top_margin">-344dp</dimen>
+    <dimen name="detail_photo_height">304dp</dimen>
+    <!--300 - 256-->
+    <dimen name="detail_card_overlap_top">44dp</dimen>
 </resources>
