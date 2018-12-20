@@ -16,10 +16,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
-import android.support.v7.app.ActionBar;
+
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,9 +31,11 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
+
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,6 +55,9 @@ public class ArticleDetailFragment extends Fragment implements
 
     public static final String ARG_ITEM_ID = "item_id";
 
+    private boolean mIsSelected = false;
+    private boolean mIsStatusBarColorLoaded = false;
+
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
@@ -66,8 +72,10 @@ public class ArticleDetailFragment extends Fragment implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
-    private static final String PARAGRAPH_SPLIT_REGEX = "(?!^)(?m)(?=^\\s{4})";
-
+//    private static final String PARAGRAPH_SPLIT_REGEX = "(?!^)(?m)(?=^\\s{4})";
+    private static final String PARAGRAPH_SPLIT_REGEX = "\\r?\\n";
+    private static final int NUMBER_OF_PARAGRAPHS = 100;
+    private Toolbar mToolbar;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -120,15 +128,17 @@ public class ArticleDetailFragment extends Fragment implements
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.detail_toolbar);
-        getActivityCast().setSupportActionBar(toolbar);
-
-        //display up button on actionbar
-        ActionBar actionBar = getActivityCast().getSupportActionBar();
-        if(actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("");
-        }
+        mToolbar = (Toolbar) mRootView.findViewById(R.id.detail_toolbar);
+        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArticleDetailActivity parentActivity = getActivityCast();
+                if(parentActivity != null) {
+                    parentActivity.onSupportNavigateUp();
+                }
+            }
+        });
 
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,6 +155,30 @@ public class ArticleDetailFragment extends Fragment implements
         return mRootView;
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser) {
+            onPageSelected();
+        } else {
+            onPageDeselected();
+        }
+    }
+
+    public synchronized void onPageSelected() {
+        mIsSelected = true;
+
+        updateStatusBarColor();
+
+        //set up button
+//        updateActivityToolbar();
+    }
+
+    public synchronized void onPageDeselected() {
+        if(mIsSelected) {
+            mIsSelected = false;
+        }
+    }
 
     private Date parsePublishedDate() {
         try {
@@ -219,7 +253,8 @@ public class ArticleDetailFragment extends Fragment implements
                                         mRootView.findViewById(R.id.detail_collapsing_bar);
                                 collapsingTb.setContentScrimColor(mMutedColor);
                                 collapsingTb.setStatusBarScrimColor(mMutedColor);
-//                                updateStatusBar();
+                                mIsStatusBarColorLoaded = true;
+                                updateStatusBarColor();
                             }
                         }
 
@@ -264,7 +299,7 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     public static List<String> parseText(String text) {
-        String[] paragraphs = text.split(PARAGRAPH_SPLIT_REGEX);
+        String[] paragraphs = text.split(PARAGRAPH_SPLIT_REGEX, NUMBER_OF_PARAGRAPHS);
         List<String> paragraphList = new ArrayList<>();
         for (int i = 0; i < paragraphs.length; i++) {
             paragraphList.add(paragraphs[i].trim());
@@ -272,7 +307,28 @@ public class ArticleDetailFragment extends Fragment implements
         return paragraphList;
     }
 
-    public int getStatusBarColor() {
-        return mMutedColor;
+    //source: https://stackoverflow.com/questions/22192291/how-to-change-the-status-bar-color-in-android
+
+    private void updateStatusBarColor() {
+        if(mIsSelected && mIsStatusBarColorLoaded) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ArticleDetailActivity parentActivity = getActivityCast();
+                if(parentActivity != null) {
+                    Window window = parentActivity.getWindow();
+
+                    if(window != null) {
+
+                        // clear FLAG_TRANSLUCENT_STATUS flag:
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+                        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+                        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+                        window.setStatusBarColor(mMutedColor);
+                    }
+                }
+
+            }
+        }
     }
 }
